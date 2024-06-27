@@ -46,7 +46,7 @@ Figure 2b: Read the reference fasta file and saving the mRNA/cDNA sequences to f
 
 ![Figure cb](images/figure2c.jpg)
 
-Figure 2c: Entry in the exported file
+Figure 2c: Transcript sequence in the exported file
 
 <hr />
 
@@ -100,12 +100,18 @@ Figure 3b: The number of exons and ignored alignments at the end of an analysis
 
 <hr />
 
-The exported gtf file as the standard format with on transcript ID given (Figure 4).
+The exported gtf file as the standard format with on transcript ID given (Figure 4). The sam file indicates whether the aligned sequence was aligned to the reference sequences forward or reverse strand. Similarly, the data in the transcript mRNA fasta file indicates whether the sequences was present on the model organism's forward and reverse strand. This information is then used to determine if the gene is on the reference sequences forward ot reverse strand as indicated in the table below Figure 4.
 
-hr />
+
+<hr />
 
 ![Figure 4](images/figure4.jpg)
 
 Figure 4
 
 <hr />
+
+|Status|On model organism's forward strand (+)|On model organism's reverse strand (-)|
+|-|-|-|
+|Aligned to forward strand (+)|Gene on forward strand (+)| Gene on reverse strand (-)|
+|Aligned to reverse strand (-)|Gene on reverse strand (-)|Gene on forward strand (+)|
