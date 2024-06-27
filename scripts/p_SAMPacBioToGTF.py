@@ -53,13 +53,36 @@ def getLegthofHit(cigar, cutoff):
         elif hit == "M": 
             value = cigar[0:index1]
             if add == True:
-                values[-1] = values[-1] +  int(value)
+                indexValues = len(values) - 1
+                values[indexValues] = values[indexValues] +  int(value)
             else:
                 values.append(int(value))
             add = False
             cigar = cigar[index1 + 1:len(cigar)] 
 
     return values        
+
+def saveTranscriptAndGene(outPuts, gtf, writtenCount):
+    minimum = 1000000000
+    maximum = -1
+    for line in outPuts:
+        if int(line[2]) < minimum:
+            minimum = int(line[2])
+        if int(line[3]) > maximum:
+            maximum = int(line[3])
+
+    gt = [ outPuts[0][0], "fromGenome,\tgene", str(minimum), str(maximum), "0.000000", outPuts[0][5], ".",  outPuts[0][7] ]
+    gtf.write("\t".join(gt))
+    gt[1] = "fromGenome,\ttranscript"
+    gtf.write("\t".join(gt))
+
+    for outputWrite in outPuts:
+        gtf.write("\t".join(outputWrite))
+        outputWrite[1] = "fromGenome,\tCDS"
+        gtf.write("\t".join(outputWrite))
+        writtenCount +=1
+
+    return writtenCount
 
 def writeToFile (sequences, places, gtf, ignored, cutOff, ignoredCount, writtenCount):
     outPuts = []
@@ -74,10 +97,10 @@ def writeToFile (sequences, places, gtf, ignored, cutOff, ignoredCount, writtenC
             for position in positions:
                 if position > 0:
                     if combine == True:
-                        output = outPuts[-1]
+                        indexOutPuts = len(outPuts) - 1
+                        output = outPuts[indexOutPuts]
                         newPlace = position + extra + int(output[3])
                         output[3] = str(newPlace)
-                        outPuts[-1] = output
                     else:
                         strand = ""
                         originalStrand = seqItems[0][len(seqItems[0])-1:len(seqItems[0])]
@@ -94,10 +117,11 @@ def writeToFile (sequences, places, gtf, ignored, cutOff, ignoredCount, writtenC
                             else:
                                 strand = "-"
 
-                        output = [ seqItems[2], "fromGenome,\texon", str(startPoint), str(startPoint + position), "0.0", seqItems[0][len(seqItems[0])-1:len(seqItems[0])], ".",  "transcript_id \"" + seqItems[0][0:len(seqItems[0])-1] + "\";\n" ]
-                
+                        output = [ seqItems[2], "fromGenome\texon", str(startPoint), str(startPoint + position), "0.000000", strand, ".",  "gene_id \"" + seqItems[0][0:len(seqItems[0])-1] + "\"; " "transcript_id \"" + seqItems[0][0:len(seqItems[0])-1] + "\";\n" ]
+                        outPuts.append(output)
+
                     startPoint += position
-                    outPuts.append(output)
+                    
                 elif position < -50:
                     startPoint -= position
                     combine = False
@@ -105,9 +129,8 @@ def writeToFile (sequences, places, gtf, ignored, cutOff, ignoredCount, writtenC
                     extra = -position
                     combine = True
 
-            for output in outPuts:
-                gtf.write("\t".join(output))
-                writtenCount +=1
+            writtenCount = saveTranscriptAndGene(outPuts, gtf, writtenCount)
+                
             outPuts = []
 
         else:
@@ -128,6 +151,7 @@ for line in sam:
             count = 0
             print("Saved: " + f"{writtenCount:,}" + " exons and ignored: " + f"{ignoredCount:,}" + " alignments                              \r", end='')
         items = line.split("\t")
+       #print(items[0] + "\t" + items[2] + "\t" + items[3] + "\t" + items[4] + "\t" + items[5] + "\t" + items[6] )
         if items[2] != "*":
             if sequence != items[0] and len(sequences) > 0: #as data
                 writtenCount, ignoredCount = writeToFile(sequences, places, gtf, ignored, cutOff, ignoredCount, writtenCount)
