@@ -16,7 +16,7 @@ First select the select the whole genome (pink box) for the correct reference fi
 
 Once downloaded move the genome (fa.gz) and annotation (gtf.gz) files to a Linux server (only the mapping step has to be performed on a Linux machine) - leave the files as gzip compressed files. Next use the [p_getSequencesFromGTFAndFasta.py](scripts/p_getSequencesFromGTFAndFasta.py) to identify the Dog's transcript sequences in the it's reference genome as annotated in the gtf file, saving them to a fasta file using a command similar to this:
 
-> python p_getSequencesFromGTFAndFasta.py canFam6.fa.gz canFam6.gtf.gz canFam6.fa.gz
+> python p_getSequencesFromGTFAndFasta.py canFam6.fa.gz canFam6.gtf.gz canFam6mRNA.fa
 
 ***Description*** 
 
