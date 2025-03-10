@@ -12,9 +12,9 @@ To do this, we must first get the dog's reference genome and the linked GTF anno
 
 Figure 1: Obtaining the annotation file. 
 
-First select the select the whole genome (pink box) for the correct reference file and gene set (blue box). Then select the correct data format (red box) and enter the file's name and gzip compression (green box) before pressing the ***get output*** button (black box). 
+First, select the select the whole genome (pink box) for the correct reference file and gene set (blue box). Then select the correct data format (red box) and enter the file's name and gzip compression (green box) before pressing the ***get output*** button (black box). 
 
-Once downloaded move the genome (fa.gz) and annotation (gtf.gz) files to a Linux server (only the mapping step has to be performed on a Linux machine) - leave the files as gzip compressed files. Next use the [p_getSequencesFromGTFAndFasta.py](scripts/p_getSequencesFromGTFAndFasta.py) to identify the Dog's transcript sequences in the it's reference genome as annotated in the gtf file, saving them to a fasta file using a command similar to this:
+Once downloaded, move the genome (fa.gz) and annotation (gtf.gz) files to a Linux server (only the mapping step has to be performed on a Linux machine)-leave the files as gzip-compressed files. Next, use the [p_getSequencesFromGTFAndFasta.py](scripts/p_getSequencesFromGTFAndFasta.py) to identify the dog's transcript sequences in it's reference genome as annotated in the GTF file, saving them to a FASTA file using a command similar to this:
 
 > python p_getSequencesFromGTFAndFasta.py canFam6.fa.gz canFam6.gtf.gz canFam6mRNA.fa
 
@@ -30,7 +30,7 @@ Once downloaded move the genome (fa.gz) and annotation (gtf.gz) files to a Linux
 
 ***Note***: You may need to include the location of the files as well as their names.
 
-When the __p_getSequencesFromGTFAndFasta.py__ runs, it first reads the gtf file and collects the positions of the exons in each transcript (Figure 2a). It then reads the reference fasta files one chromosome/contig at a time and identifies the sequences for each exon in that chromosome/contig, saving them to the export file (Figure 2b). Each transcript's sequence is saved in the fasta file using the transcript's ID value as an identifier. If the transcript is on the forward strand is as a __+__ appended to the name, while a __-__ indicates its on the reverse strand. 
+When the __p_getSequencesFromGTFAndFasta.py__ runs, it first reads the GTF file and collects the positions of the exons in each transcript (Figure 2a). It then reads the reference FASTA files one chromosome/contig at a time and identifies the sequences for each exon in that chromosome/contig, saving them to the export file (Figure 2b). Each transcript's sequence is saved in the FASTA file using the transcript's ID value as an identifier. If the transcript is on the forward strand __+__ appended to the name, while a __-__ indicates it's on the reverse strand. 
 
 <hr />
 
@@ -52,7 +52,7 @@ Figure 2c: Transcript sequence in the exported file
 
 <hr />
 
-Once the transcript sequence fasta file has been created, align these sequences to the non-model organism's genome reference sequence using [minimap2](https://github.com/lh3/minimap2). minimap2 is a long read sequence aligner that is designed to map genomic or RNA long read data from a PacBio or ONT sequencer to a genome. Since, ONT long read data can be very noisy, the fact that the transcript sequences may be have evolutionarily diverged from genome should not be a massive issue if the two species aren't to distant from each other. 
+Once the transcript sequence FASTA file has been created, align these sequences to the non-model organism's genome reference sequence using [minimap2](https://github.com/lh3/minimap2). Minimap2 is a long-read sequence aligner that is designed to map genomic or RNA long-read data from a PacBio or ONT sequencer to a genome. Since ONT long-read data can be very noisy, the fact that the transcript sequences may have evolutionarily diverged from the genome should not be a major issue if the two species aren't too distant from each other. 
 
 The command below uses minimap2 to both make an index for the genome reference and then map the sequences to this index all in one step.  
 
@@ -61,12 +61,12 @@ The command below uses minimap2 to both make an index for the genome reference a
 |Parameter|Purpose|
 |-|-|
 |minimap2|name of program to run|
-|-ax|Instructs minimap2 to first create an index and the align the transcripts to it|
-|splice|Indicates that the sequences to be aligned have been spliced and so the alignment may not be contiguous. Since 'splice' is used with no suffix, it indicates the data is expected to be noisy like ONT data as opposed to PacBio data|
-|-t 8|Instructs minimap2 to use 8 processors|
-|grey_seal_a.fna|Name of the file containing the reference sequence to align data too|
-|canFam6mRNA.fa|Name of the transcripts to be aligned to the genome|
-|GreySealCanine6.sam|Name of file to save the aligned data too|
+|-ax|Instructs minimap2 to first create an index and then align the transcripts to it|
+|splice|Indicates that the sequences to be aligned have been spliced and so the alignment may not be contiguous. Since 'splice' is used with no suffix, it indicates the data is expected to be noisy like ONT data as opposed to PacBio data.|
+|-t 8|Instructs minimap2 to use 8 processors.|
+|grey_seal_a.fna|Name of the file containing the reference sequence to align data too.|
+|canFam6mRNA.fa|Name of the transcripts to be aligned to the genome.|
+|GreySealCanine6.sam|Name of file to save the aligned data too.|
 
 ***Note***: You may need to include the location of the files as well as their names.
 
@@ -76,17 +76,17 @@ Once the dog's transcripts have been aligned, use the [p_SAMPacBioToGTF.py](scri
 
 |Parameter|Purpose|
 |-|-|
-|python|Indicates the script is a python script|
-|p_SAMPacBioToGTF.py|The name of the script file|
-|grey_seal.sam|Name of the alignment file created by minimap2|
-|grey_seal.gtf|Name of the gtf file created by p_SAMPacBioToGTF.py that contains the exons for each transcript|
-|60|This filters the alignments based on how many indels are in the alignment that are not caused by the lack of introns in the transcript sequences. While some small insertions and deletions are to be expected, a large number suggests that the alignment is wrong or for example is aligned to a pseudo gene. This number needs to be modified depending on how distant the two species are. The more divergent the bigger the number.|
+|python|Indicates the script is a python script.|
+|p_SAMPacBioToGTF.py|The name of the script file.|
+|grey_seal.sam|Name of the alignment file created by minimap2.|
+|grey_seal.gtf|Name of the gtf file created by p_SAMPacBioToGTF.py that contains the exons for each transcript.|
+|60|This filters the alignments based on how many indels are in the alignment that are not  introns in the genomic sequences. While some small insertions and deletions are to be expected, a large number suggest that the alignment is wrong or for example, is aligned to a pseudogene. This number needs to be modified depending on how distant the two species are. The more divergent, the bigger the number.|
 
 ***Note***: You may need to include the location of the files as well as their names.
 
-p_SAMPacBioToGTF.py also creates a 2nd file called grey_seal.gtf.txt that contains all the alignments rejected by p_SAMPacBioToGTF.py either because it has to many indels or it was not mapped at all.
+p_SAMPacBioToGTF.py also creates a 2nd file called grey_seal.gtf.txt that contains all the alignments rejected by p_SAMPacBioToGTF.py either because it has too many indels or it was not mapped at all.
 
-As p_SAMPacBioToGTF.py runs it indicates the number of exons identified and the number of alignments rejected (Figure 3a and 3b).
+As p_SAMPacBioToGTF.py runs, it indicates the number of exons identified and the number of alignments rejected (Figures 3a and 3b).
 
 <hr />
 
@@ -102,7 +102,7 @@ Figure 3b: The number of exons and ignored alignments at the end of an analysis
 
 <hr />
 
-The exported gtf file has the standard gtf format with the features of gene, transcript, exon and CDS shown which include the transcript ID and gene ID given in the metadata (Figure 4). The sam file indicates whether the aligned sequence was aligned to the reference sequence's forward or reverse strand. Similarly, the data in the transcript mRNA fasta file indicates whether the sequences was present on the model organism's forward or reverse strand. This information is then used to determine if the gene is on the reference sequences forward ot reverse strand as indicated in the table below Figure 4.
+The exported GTF file has the standard GTF format with the features of gene, transcript, exon and CDS shown, which include the transcript ID and gene ID given in the metadata (Figure 4). The SAM file indicates whether the aligned sequence was aligned to the reference sequence's forward or reverse strand. Similarly, the data in the transcript mRNA FASTA file indicates whether the sequences were present on the model organism's forward or reverse strand. This information is then used to determine if the gene is on the reference sequence's forward or reverse strand as indicated in the table below Figure 4.
 
 <hr />
 
@@ -114,5 +114,5 @@ Figure 4
 
 |Status|On model organism's forward strand (+)|On model organism's reverse strand (-)|
 |-|-|-|
-|Aligned to forward strand (+)|Gene on forward strand (+)| Gene on reverse strand (-)|
+|Aligned to forward strand (+)|Gene on forward strand (+)|Gene on reverse strand (-)|
 |Aligned to reverse strand (-)|Gene on reverse strand (-)|Gene on forward strand (+)|
