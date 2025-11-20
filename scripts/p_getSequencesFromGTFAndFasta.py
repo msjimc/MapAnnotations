@@ -25,7 +25,7 @@ while (gtf):
 
 	items = bit.split("\t")
 	chromosome = items[0]
-	if  items[2] == "exon":
+	if  len(items) > 8 and items[2] == "exon":
 		index1 = items[8].find("gene_id ") + 9;
 		index2 = items[8].find(";", index1)
 		if index1 > -1 and index2 > -1:
@@ -104,6 +104,9 @@ while (fasta):
 		sequence = ""
 		lines=[]
 		name = line[1:len(line) - 1]
+		indexName = name.find(" ")
+		if indexName > -1:
+			name = name[0:indexName]
 		counter=0
 		size=0
 		print(name + "                                                             \r", end='')
